@@ -110,28 +110,27 @@ router.get('/films/:filmId',function(req,res){
            id:1 ,
            name:'Rang de basanti'
         },
-
-        {
-            id:2 ,
-            name:'The shining'
-        },
+        {id:2 ,
+        name:'The shining'
+         },
         {   
-            id:3 ,
-            name:'Lord of the rings'
+        id:3 ,
+        name:'Lord of the rings'
         },
         {
-            id:4 ,
-            name:'Batman begins'
+        id:4 ,
+        name:'Batman begins'
         } ]
-    const filmobj=req.params;
-    const filmId=Number(filmobj.filmId)-1;
+        
+        const i=Number(req.params.filmId)-1;
+         
+        if(i>movies.length-1){
+            res.send("invalid index")
+        }else{
+            res.send(movies[i].name)
+        }
 
-    if(filmId>movies.length-1){
-        res.send("No movies exists with this id")
-    }else{
-        res.send(movies[filmId].name)
-    }
 
-    });
+    })
 
 module.exports = router;
