@@ -1,6 +1,6 @@
 const {isValidObject} = require("mongoose")
 const orderModel = require("../models/orderModel")
-const userModel = require("../models/useerModel")
+const userModel = require("../models/userModel")
 const productModel = require("../models/productModel")
 
 const createOrder= async function (req, res) {

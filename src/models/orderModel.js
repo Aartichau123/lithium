@@ -4,12 +4,12 @@ const orderSchema = mongoose.Schema({
     UserId:{
         type:ObjectId,
         ref:"User",
-        required:[true,"Please add Your Id!"],
+        required:true,
     },
     ProductId :{
         type: ObjectId,
         ref:"Product",
-        required:[true,"Please add Product Id!"],
+        required:true
     },
     amount:{
         type:Number,
@@ -20,4 +20,4 @@ const orderSchema = mongoose.Schema({
     },
 },{timestamps:true});
 
-module.exports = mongoose.model("Oredr",orderSchema)
+module.exports = mongoose.model("Order",orderSchema)
