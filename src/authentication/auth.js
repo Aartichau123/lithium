@@ -1,5 +1,6 @@
 const userModel = require("../models/userModel")
 const jwt = require("jsonwebtoken");
+
 const Idcheck = async function(req,res,next){
     let userId = req.params.userId
     let userdata = await userModel.find({_id:userId})
@@ -14,9 +15,11 @@ const Idcheck = async function(req,res,next){
 const tokencheck = async function(req,res,next){
     try{
     let token = req.headers["x-Auth-token"];
-  if (!token) token = req.headers["x-auth-token"];
-  if (!token) return res.send({ status: false, msg: "token must be present" });
+ if (!token) token = req.headers["x-auth-token"];
+  if (!token)
+   return res.send({ status: false, msg: "token must be present" });
   let decodedToken = jwt.verify(token, "functionup-Lithium-very-very-secret-key");
+  
   if (!decodedToken)
     return res.send({ status: false, msg: "token is invalid" });
 next()
