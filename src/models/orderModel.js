@@ -1,4 +1,4 @@
-const {default:mongoose} =require("mongoose");
+const mongoose =require("mongoose");
 const ObjectId = mongoose.Schema.Types.ObjectId;
 const orderSchema = mongoose.Schema({
     UserId:{
@@ -13,11 +13,11 @@ const orderSchema = mongoose.Schema({
     },
     amount:{
         type:Number,
+        required:true
     },
-    isFreeAppuser:Boolean,
     date:{
         type:Date,
     },
-});
+},{timestamps:true});
 
 module.exports = mongoose.model("Oredr",orderSchema)

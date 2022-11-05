@@ -38,6 +38,22 @@ const myOtherMiddleware = function(req, res, next){
         req.wantsJson = false
     }
     next()
+
+     const headerValidation = function (req, res, next) {
+         //here we have to check wheather isFreeAppUser is present or not and terminate the request.
+         let isFreeAppUser = req.headers.isfreeappuser
+
+         if (!isFreeAppUser) {
+
+             return res.send({ message: "mandatory is not present" }) //terminating with an error message
+         }
+         else {
+             isFreeAppUser = isFreeAppUser.toLowerCase() === 'true' ? true : false //boolean
+             req.isFreeAppUser = isFreeAppUser
+             next()
+         }
+     }
+
 }
 
 module.exports.mid1= mid1
@@ -45,4 +61,6 @@ module.exports.mid2= mid2
 module.exports.mid3= mid3
 module.exports.mid4= mid4
 module.exports.myMiddleware = myMiddleware
+module.exports.headerValidation = headerValidation
 module.exports.myOtherMiddleware = myOtherMiddleware
+
