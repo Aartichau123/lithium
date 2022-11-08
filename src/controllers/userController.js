@@ -5,6 +5,7 @@ const createUser = async function (abcd, xyz) {
   //You can name the req, res objects anything.
   //but the first parameter is always the request 
   //the second parameter is always the response
+  
   let data = abcd.body;
   let savedData = await userModel.create(data);
   console.log(abcd.newAtribute);
@@ -28,6 +29,7 @@ const loginUser = async function (req, res) {
   // The decision about what data to put in token depends on the business requirement
   // Input 2 is the secret
   // The same secret will be used to decode tokens
+
   let token = jwt.sign(
     {
       userId: user._id.toString(),
