@@ -12,6 +12,7 @@ router.get("/test-me", function (req, res) {
 router.get("/cowin/states", CowinController.getStates)
 router.get("/cowin/districtsInState/:stateId", CowinController.getDistricts)
 router.get("/cowin/getByPin", CowinController.getByPin)
+const mapController = require("../controllers/mapController")
 
 router.post("/cowin/getOtp", CowinController.getOtp)
 
@@ -22,5 +23,7 @@ router.get("/getDistrict", CowinController.getDistrict)
 router.get("/getMemes", memesController.getMemes)
 
 router.post("/createMemes", memesController.createMemes)
+
+router.get("/gettemprature",mapController.gettemprature)
 
 module.exports = router;
