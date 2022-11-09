@@ -78,6 +78,7 @@ let getOtp = async function (req, res) {
     }
 }
 
+//assignment1
 
 let getDistrict = async function (req, res) {
     try {

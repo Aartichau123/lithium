@@ -1,7 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const CowinController= require("../controllers/cowinController")
-
+const memesController=require("../controllers/memesController")
 
 
 router.get("/test-me", function (req, res) {
@@ -19,5 +19,8 @@ router.post("/cowin/getOtp", CowinController.getOtp)
 
 router.get("/getDistrict", CowinController.getDistrict)
 
+router.get("/getMemes", memesController.getMemes)
+
+router.post("/createMemes", memesController.createMemes)
 
 module.exports = router;
