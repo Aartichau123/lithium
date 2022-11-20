@@ -82,7 +82,7 @@ const createBlog = async function (req, res) {
     }
 
     let blogData = await blogModel.create(data);
-    return res.status(201).send({ status: true, message:"successfull" ,data:blogData });
+    return res.status(201).send({ status: true, message:"blog is created successfull" , data:blogData });
 
   } catch (err) {
     return res.status(500).send({ msg: "Error", error: err.message });
@@ -125,7 +125,7 @@ const getBlog = async function (req, res) {
     }
     
     else {
-      res.status(200).send({ status: true, data: blogDetails })
+      res.status(200).send({ msg:"all blogs",status: true, data: blogDetails })
     }
   } catch (err) {
     res.status(500).send({ msg: "Error", error: err.message })
@@ -164,7 +164,7 @@ const updateBlog = async function (req, res) {
         title: title, body: body, isPublished: true, publishedAt: Date.now()
         , $push: { tags: tags, subcategory: subcategory }
       }, { new: true })
-    return res.status(200).send({ status: true, message:"successful" ,data:blogs })
+    return res.status(200).send({ status: true, message:"data updated successful" , data:blogs })
   } catch (err) { res.status(500).send({ status: false, msg: err.message }) }
 }
 
@@ -213,7 +213,7 @@ const deleteByQuery = async function (req, res) {
     console.log(blogDetails)
 
     if (!blogDetails) {
-      return res.status(404).send({ status: false, message: `Blog not exist or already deletedd` });
+      return res.status(404).send({ status: false, message: `Blog not exist or already deleted` });
     }
     blogDetails.authorId.toString()
     if (blogDetails.authorId != token.authorId) {

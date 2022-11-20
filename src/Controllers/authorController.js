@@ -89,7 +89,7 @@ const createAuthor = async function (req, res) {
         // if(uniqueEmail)  return res.status(400).send({status:false,message:"email is already exist"})
 
         let authordata = await authorModel.create(data)
-         return  res.status(201).send({ status:true , data: authordata });
+         return  res.status(201).send({ status:true , data: authordata, msg:"data created "});
     }
     catch (err) {
         res.status(500).send({ error: err.message, status: false });
