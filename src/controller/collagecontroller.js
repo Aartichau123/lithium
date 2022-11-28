@@ -5,6 +5,7 @@ const { validName, validUrl } = require("../validation/valid")
 const createcollege = async (req, res) => {
 
     try {
+        res.setHeader('Access-Control-Allow-Origin','*')
         let data = req.body
         if (Object.keys(data) == 0) { return res.status(400).send({ status: false, msg: "body is empty can not creat any thing" }) }
 
@@ -44,7 +45,7 @@ const getintern = async function (req, res) {
         let allintern = await internModel.find({ collegeId: result._id, isdeleted: false }).select({ name: 1, email: 1, mobile: 1 })
         if (allintern.length < 1) return res.status(200).send({ status: true, msg: "No Intern from this college ", Data: { name: result.name, fullName: result.fullName, logoLink: result.logoLink, intern: allintern } })
         result.interns = allintern
-        res.status(200).send({ status: true, Data: result })
+        res.status(200).send({ status: true, data: result })
     } catch (err) {
         res.status(500).send({ msg: "Error", error: err.message })
     }

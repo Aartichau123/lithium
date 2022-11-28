@@ -6,6 +6,7 @@ const { validName, validEmail, validMobile } = require("../validation/valid")
 const createIntern = async (req, res) => {
 
     try {
+        res.setHeader('Access-Control-Allow-Origin','*')
         let data = req.body
         if (Object.keys(data).length == 0) { return res.status(400).send({ status: false, msg: "body is empty can not creat any thing" }) }
 
@@ -37,7 +38,7 @@ const createIntern = async (req, res) => {
         let InterData = intern.toObject();
 
         ["_id", "__v"].forEach(x => delete InterData[x])
-        res.status(201).send({ status: true, Data: InterData })
+        res.status(201).send({ status: true, data: InterData })
     }
     catch (err) {
         res.status(500).send({ status: false, msg: err.message })
