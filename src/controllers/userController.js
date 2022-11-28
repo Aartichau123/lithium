@@ -11,19 +11,19 @@ const createUser = async function(req,res){
 
         if(Object.keys(data).length==0) return res.status(400).send({status :false , message: "All fields are mandatory !!!"})
 
-        if (!title || title.trim().length==0) res.status(400).send({ status : false , message : "Title is required !!!" })
-        if (!name || name.trim().length==0) res.status(400).send({ status : false , message : "Name is required !!!" })
-        if (!phone || phone.trim().length==0) res.status(400).send({ status : false , message : "Phone number is required !!!" })
-        if (!email || email.trim().length==0) res.status(400).send({ status : false , message : "Email is required !!!" })
-        if (!password || password.trim().length==0) res.status(400).send({ status : false , message : "Password is required !!!" })
+        if (!title || title.trim().length==0) return res.status(400).send({ status : false , message : "Title is required !!!" })
+        if (!name || name.trim().length==0) return res.status(400).send({ status : false , message : "Name is required !!!" })
+        if (!phone || phone.trim().length==0) return res.status(400).send({ status : false , message : "Phone number is required !!!" })
+        if (!email || email.trim().length==0) return res.status(400).send({ status : false , message : "Email is required !!!" })
+        if (!password || password.trim().length==0) return res.status(400).send({ status : false , message : "Password is required !!!" })
 
-        if (!validator.isValidPhone(phone)) return res.status(400).send({ status: false, message: "Please provide a valid phone number !!!" })
-        let phoneCheck = await userModel.findOne(phone)
-        if(phoneCheck) res.status(400).send({ status : false , message : "Phone number already in use !!!" })
+        // if (!validator.isValidPhone(phone)) return res.status(400).send({ status: false, message: "Please provide a valid phone number !!!" })
+        let phoneCheck = await userModel.findOne({phone})
+        if(phoneCheck) return res.status(400).send({ status : false , message : "Phone number already in use !!!" })
 
-        if(!validator.isValidpassword(password)) return res.status(400).send({ status: false , message: "Please enter a valid password between 8 to 15 characters !!!" })
-        let emailCheck = await userModel.findOne(email)
-        if(emailCheck) res.status(400).send({ status : false , message : "Email already in use !!!" })
+        // if(!validator.isValidpassword(password)) return res.status(400).send({ status: false , message: "Please enter a valid password between 8 to 15 characters !!!" })
+        let emailCheck = await userModel.findOne({email})
+        if(emailCheck) return res.status(400).send({ status : false , message : "Email already in use !!!" })
 
         savedData = await userModel.create(data)
 
@@ -41,7 +41,7 @@ const userLogin = async function(req,res){
     const data = req.body
     const {email,password} = data
 
-    if (Object.keys(data).length == 0) {return res.status(400).send({ status : false , message : "Email and Password are mandatory !!!" });}
+    if (Object.keys(data).length == 0) return res.status(400).send({ status : false , message : "Email and Password are mandatory !!!" })
 
     if(!email || !password) return res.status(400).send({ status : false , message : "Please enter your email and Password !!!" })
 
@@ -53,7 +53,7 @@ const userLogin = async function(req,res){
 
     if(!userData) return res.status(404).send({status : false , message : "Email or Password is incorrect !!!"})
 
-    let token = jwt.sign({ userId: userData._id.toString() } , "bookmanagement" , { expiresIn : "1h" })
+    let token = jwt.sign({ userId : userData._id.toString() } , "bookmanagement" , { expiresIn : "1h" })
 
     res.setHeader("x-api-key" , token)
 
