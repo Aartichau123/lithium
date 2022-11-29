@@ -21,7 +21,7 @@ const createUser = async function(req,res){
         let phoneCheck = await userModel.findOne({phone})
         if(phoneCheck) return res.status(400).send({ status : false , message : "Phone number already in use !!!" })
 
-        if(!validator.isValidEmail(email)) return res.status(400).send({ status: false , message: "Please enter a valid password between 8 to 15 characters !!!" })
+        if(!validator.isValidEmail(email)) return res.status(400).send({ status: false , message: "Please enter a valid Email id !!!" })
         let emailCheck = await userModel.findOne({email})
         if(emailCheck) return res.status(400).send({ status : false , message : "Email already in use !!!" })
 
@@ -36,10 +36,7 @@ const createUser = async function(req,res){
     }
 }
 
-
 // =================================login User=================================
-
-
 
 const userLogin = async function(req,res){
 
@@ -56,7 +53,7 @@ const userLogin = async function(req,res){
 
     if(!validator.isValidEmail(email))  return res.status(400).send({ status : false , message : "Email Id is invalid !!!" })
 
-    let userData = await userModel.findOne({ email,password })
+    let userData = await userModel.findOne({ email , password })
 
     if(!userData) return res.status(404).send({status : false , message : "Email or Password is incorrect !!!"})
 
