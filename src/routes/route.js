@@ -10,6 +10,7 @@ router.post('/login', userController.userLogin)
 
 router.post('/books', authentication , bookController.createBook)
 
-router.get('/books', authentication , bookController.getAllBooks)
+router.get('/books', authentication , bookController.getAllBooks);
+router.get('/books/:bookId', authentication , bookController.getBookById)
 
 module.exports = router
