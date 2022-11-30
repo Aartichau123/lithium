@@ -3,7 +3,7 @@ const moment = require('moment')
 const bookModel = require('../models/bookModel')
 const userModel = require('../models/userModel')
 const reviewModel = require('../models/reviewModel.js')
-const { isValidString } = require('../validations/validation')
+const { isValidString ,isValid} = require('../validations/validation')
 
 const createBook = async function(req , res){
 
@@ -180,47 +180,85 @@ const deleteBook =async function(req , res){
     res.status(500).send({ status : false , message : err.message })
 }
 }
+// ====================================CreateReviewS==========================================
+// ## Review APIs
+// ### POST /books/:bookId/review
+// - Add a review for the book in reviews collection.
+// - Check if the bookId exists and is not deleted before adding the review. Send an error response with appropirate status code like [this](#error-response-structure) if the book does not exist
+// - Get review details like review, rating, reviewer's name in request body.
+// - Update the related book document by increasing its review count
+// - Return the updated book document with reviews data on successful operation. The response body should be in the form of JSON object like [this](#successful-response-structure)
 
-// const createReview = async function (req, res) {
-//     try {
-//       let bookId = req.params.bookId;
-//       let data = req.body;
-  
-//       let { review, reviewedBy, rating } = data;
-  
-//       if (!bookId) return res.status(400).send({ status: false, message: "bookId is not present" });
-  
-//       if (!isValidObjectId(bookId)) return res.status(400).send({ status: false, message: "this is not a valid book Id" });
-      
-  
-//       let findBook = await book.findOne({ bookId });
-//       if (!findBook) return res.status(404).send({ status: false, message: "no books with this Books id" });
-  
-//       if (findBook.isDeleted === true) return res.status(404).send({ status: false, message: "This book has been deleted" });
-      
-//       if (!(rating <= 5 && rating >= 1)) return res.status(400).send({ status: false, message: "please provide a valid rating" });
-  
-//       if (!validator.isValid(review)) return res.status(400).send({ status: false, message: "review is a required field" });
-  
-//       if (!validator.isValid(reviewedBy)) return res.status(400).send({ status: false, message: "review is a required field" });
-      
-//       data.bookId = bookId;
-  
-//       let checkDetails = await reviewModel.find(data);
-  
-//       if (checkDetails) return res.status(400).send({status: false,message:"a review with this details already exists, please update it",});
-  
-//       let reviewCreated = await reviewModel.create(data);
-  
-//       if (reviewCreated) {
-//         let updatedBook = await book.findOneAndUpdate({ _id: bookId },{ $inc: { reviews: 1 } },{ new: true, upsert: true });
-  
-//         return res.status(201).send({ status: true, message: "Review published", data: updatedBook });
-//     }
-//     } catch (err) {
-//       return res.status(500).send({ status: false, message: err.message });
-//   }
-//   }
+// - Review Model (Books review)
+// ```yaml
+// {
+//   bookId: {ObjectId, mandatory, refs to book model},
+//   reviewedBy: {string, mandatory, default 'Guest', value: reviewer's name},
+//   reviewedAt: {Date, mandatory},
+//   rating: {number, min 1, max 5, mandatory},
+//   review: {string, optional}
+//   isDeleted: {boolean, default: false},
+// }
 
-module.exports = { createBook , getAllBooks , getBookById , updatebooks , deleteBook }
+
+// ``yaml
+// {
+//   "_id": ObjectId("88abc190ef0288abc190ef88"),
+//   bookId: ObjectId("88abc190ef0288abc190ef55"),
+//   reviewedBy: "Jane Doe",
+//   reviewedAt: "2021-09-17T04:25:07.803Z",
+//   rating: 4,
+//   review: "An exciting nerving thriller. A gripping tale. A must read book."
+// }
+// ```
+// ```
+
+const createReview = async function (req, res) {
+    try {
+      let bookId = req.params.bookId;
+      let data = req.body;
+      console.log(bookId);
+  
+      let { review, reviewedBy, rating,reviewedAt } = data;
+  
+      if (!bookId) return res.status(400).send({ status: false, message: "bookId is not present" });
+  
+      if (!isValidObjectId(bookId)) return res.status(400).send({ status: false, message: "this is not a valid book Id" });
+      
+  
+      let findBook = await bookModel.findById( bookId );
+      console.log(findBook);
+      if (!findBook) return res.status(404).send({ status: false, message: "no books with this Books id" });
+  
+      if (findBook.isDeleted == true) return res.status(404).send({ status: false, message: "This book has been deleted" });
+      
+      if (!(rating <= 5 && rating >= 1)) return res.status(400).send({ status: false, message: "please provide a valid rating" });
+  
+    //   if (!isValid(review)) return res.status(400).send({ status: false, message: "review is a required field" });
+  
+    //   if (!isValid(reviewedBy)) return res.status(400).send({ status: false, message: "review is a required field" });
+      
+      data.bookId = bookId;
+      data.reviewedAt = moment(reviewedAt).format('YYYY-MM-DD')
+
+      let reviewCreated = await reviewModel.create(data);
+
+      
+      if (reviewCreated) {
+        let updatedBook = await bookModel.findOneAndUpdate({ _id: bookId },{ $inc: { reviews: 1, } },{ new: true }).select({ ISBN : 0 , __v : 0 }).lean();
+
+        let reviewData = await reviewModel.find({ bookId }).select({ isDeleted : 0 , createdAt : 0 , updatedAt : 0 , __v : 0 })
+
+        if(reviewData.length == 0) reviewData.push("No reviews available !!!")
+
+        updatedBook.reviewsData = reviewData
+
+        return res.status(201).send({ status: true, message: "Review published", data: updatedBook });
+    }
+    } catch (err) {
+      return res.status(500).send({ status: false, message: err.message});
+  }
+  }
+
+module.exports = { createBook , getAllBooks , getBookById , updatebooks , deleteBook,createReview }
 
