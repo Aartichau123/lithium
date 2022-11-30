@@ -50,12 +50,11 @@ const userLogin = async function(req,res){
     if(!email) return res.status(400).send({ status : false , message : "Please enter your email!!!" })
     if(!password) return res.status(400).send({ status : false , message : "Please enter your password!!!" })
 
-
     if(!validator.isValidEmail(email))  return res.status(400).send({ status : false , message : "Email Id is invalid !!!" })
 
     let userData = await userModel.findOne({ email , password })
 
-    if(!userData) return res.status(404).send({status : false , message : "Email or Password is incorrect !!!"})
+    if(!userData) return res.status(404).send({ status : false , message : "Email or Password is incorrect !!!" })
 
     let token = jwt.sign({ userId : userData._id.toString() } , "bookmanagement" , { expiresIn : "1h" })
 
