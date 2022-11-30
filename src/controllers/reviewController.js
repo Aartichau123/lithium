@@ -71,12 +71,9 @@ const updateReview = async function(req , res){
 
     if(!bookData) return res.status(404).send({ status : false , message : "This book is not present !!!" })
 
-    // if(bookData.userId.toString() != req.loggedInUser) return res.status(403).send({ status : false, message : "You are not authorized to access this data !!!" })
-
     if(bookData.isDeleted === true) return res.status(400).send({ status : false, message : "This book is already deleted !!!" })
 
     let reviewData = await reviewModel.findById(reviewId)
-    console.log(reviewData)
 
     if(reviewData.isDeleted === true) return res.status(400).send({ status : false , message : "This review is deleted !!!" })
 
@@ -95,14 +92,13 @@ const updateReview = async function(req , res){
     let updateReviewData = await reviewModel.findOneAndUpdate({ _id : reviewId , isDeleted : false } , data , { new : true })
     console.log(updateReviewData)
 
-    if(updateReviewData){
-        let reviewData = await reviewModel.find({ bookId , isDeleted : false })
+    if(!updateReviewData) return res.status(400).send({ status : true , message : "Review not deleted" })
 
-        if(reviewData.length == 0) reviewData.push("No reviews available !!!")
+    let newReviewData = await reviewModel.find({ bookId , isDeleted : false })
 
-        bookData.reviewsData = reviewData
-        console.log(bookData)
-    }
+    if(newReviewData.length == 0) reviewData.push("No reviews available !!!")
+
+    bookData.reviewsData = newReviewData
 
     res.status(200).send({ status : true , message : "Book list" , data : bookData })
 
@@ -135,16 +131,14 @@ const deleteReview = async function (req, res){
     const deleteReviewDetails = await reviewModel.findOneAndUpdate( { _id : reviewId } , { isDeleted : true, deletedAt : new Date() } , { new : true })
 
     if (!deleteReviewDetails) return res.status(400).send({ status : true , message : "Review not deleted" })
-        let deletedBook = await bookModel.findOneAndUpdate({ _id: bookId } , { $inc : { reviews: -1 } } , { new : true } ).lean() 
-        console.log(deletedBook)
 
-        let reviewData = await reviewModel.find({ bookId , isDeleted : false })
-        console.log(reviewData)
+    let deletedBook = await bookModel.findOneAndUpdate({ _id: bookId } , { $inc : { reviews: -1 } } , { new : true } ).lean()
 
-        if(reviewData.length == 0) reviewData.push("No reviews available !!!")
+    let reviewData = await reviewModel.find({ bookId , isDeleted : false })
 
-        deletedBook.reviewsData = reviewData
-    
+    if(reviewData.length == 0) reviewData.push("No reviews available !!!")
+
+    deletedBook.reviewsData = reviewData
 
     res.status(200).send({ status : true , message : "Book list" , data : deletedBook })
 

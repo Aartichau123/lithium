@@ -66,28 +66,5 @@ const userLogin = async function(req,res){
         res.status(500).send({status : false , message : err.message})
     }
 }
-//delete review
-var ObjectId = require('mongoose').Types.ObjectId
-const deleteReview = async function (req, res){
-    try{
-const {bookId,reviewId}= req.params
-    if (ObjectId.isValid(bookId)) {return res.status(400).send({ status: false, message: "Invalid BookId." })}
 
-    if (ObjectId.isValid(reviewId)) {return res.status(400).send({ status: false, message: "Invalid reviewId." }) }
-
-    let checkBook=await bookModel.findById(bookId)
-
-    if(!checkBook){return res.status(404).send({ status: false, message: "BookId Not Found" })}
-    let checkReview=await reviewModel.findById(reviewId)
-
-    if(!checkReview){return res.status(404).send({ status: false, message: "reviewId Not Found" }) }
-
-    if (checkBook.isDeleted == true||checkReview.isDeleted==true){return res.status(400).send({ status: false, message: "Can't Delete Review of a Deleted Book " }) }
-
-    const deleteReviewDetails = await reviewModel.findOneAndUpdate( { _id: reviewId },{ isDeleted: true, deletedAt: new Date() },{ new: true })
-
-    if (deleteReviewDetails) {await bookModel.findOneAndUpdate({ _id: bookId },{$inc:{ reviews: -1 }}) }
-return res.status(200).send({ status: true, message: "Review deleted successfully.",data:deleteReviewDetails})
-}catch(err){return res.status(500).send({ status: false, Error: err.message })}}
-
-module.exports = { createUser , userLogin,deleteReview }
+module.exports = { createUser , userLogin }
