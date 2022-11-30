@@ -103,10 +103,8 @@ const getBookById = async function(req , res){
 }
 
 const updatebooks = async function (req , res) {
-
-    try {
-
-    let bookId = req.params.bookId;
+try {
+let bookId = req.params.bookId;
     let data = req.body
     let { title, excerpt, ISBN, releasedAt } = data
 
