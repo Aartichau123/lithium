@@ -89,7 +89,7 @@ const getBookById = async function(req , res){
         let bookData = await bookModel.findById(bookId).select({ ISBN : 0 , __v : 0 }).lean()
         if (!bookData) return res.status(404).send({ status : false, message : "BookId does not exist !!!" })
 
-        let reviewData = await reviewModel.find({ bookId })
+        let reviewData = await reviewModel.find({ bookId , isDeleted : false }).select({ isDeleted : 0 , createdAt : 0 , updatedAt : 0 , __v : 0 })
 
         if(reviewData.length == 0) reviewData.push("No reviews available !!!")
 

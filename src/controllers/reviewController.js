@@ -14,17 +14,17 @@ const createReview = async function (req, res) {
 
     let { review , reviewedBy , rating , reviewedAt } = data
 
-    if (!bookId) return res.status(400).send({ status: false, message: "bookId is not present" })
+    if (!bookId) return res.status(400).send({ status: false, message: "BookId is required !!!" })
 
-    if (!isValidObjectId(bookId)) return res.status(400).send({ status: false, message: "this is not a valid book Id" })
+    if (!isValidObjectId(bookId)) return res.status(400).send({ status: false, message: "BookId is not a valid ObjectId !!!" })
 
     let findBook = await bookModel.findById( bookId )
 
-    if (!findBook) return res.status(404).send({ status: false, message: "no books with this Books id" })
+    if (!findBook) return res.status(404).send({ status: false, message: "Book not found !!!" })
 
-    if (findBook.isDeleted == true) return res.status(404).send({ status: false, message: "This book has been deleted" })
+    if (findBook.isDeleted == true) return res.status(400).send({ status: false, message: "This book has been deleted !!!" })
     
-    if (!(rating <= 5 && rating >= 1)) return res.status(400).send({ status: false, message: "please provide a valid rating" })
+    if (!(rating <= 5 && rating >= 1)) return res.status(400).send({ status: false, message: "Please provide a valid rating between 1-5 !!!" })
 
     //   if (!isValid(review)) return res.status(400).send({ status: false, message: "review is a required field" })
 
@@ -36,15 +36,15 @@ const createReview = async function (req, res) {
     let reviewCreated = await reviewModel.create(data)
 
     if (reviewCreated) {
-        let updatedBook = await bookModel.findOneAndUpdate({ _id: bookId },{ $inc: { reviews: 1, } },{ new: true }).select({ ISBN : 0 , __v : 0 }).lean();
+        let updatedBook = await bookModel.findOneAndUpdate({ _id: bookId },{ $inc: { reviews: 1, } },{ new: true }).select({ ISBN : 0 , __v : 0 }).lean()
 
-        let reviewData = await reviewModel.find({ bookId }).select({ isDeleted : 0 , createdAt : 0 , updatedAt : 0 , __v : 0 })
+        let reviewData = await reviewModel.find({ bookId , isDeleted : false }).select({ isDeleted : 0 , createdAt : 0 , updatedAt : 0 , __v : 0 })
 
         if(reviewData.length == 0) reviewData.push("No reviews available !!!")
 
         updatedBook.reviewsData = reviewData
 
-        res.status(201).send({ status: true, message: "Review published", data: updatedBook })
+        res.status(200).send({ status: true, message: "Book list" , data: updatedBook })
     }
     } catch (err) {
         res.status(500).send({ status: false, message: err.message});
@@ -60,14 +60,13 @@ const updateReview = async function(req , res){
     let data = req.body
     let { review , rating , reviewedBy } = data
 
-    if(Object.keys(data).length == 0) return res.status(400).send({ status : false, message : "Please enter valid keys for updation!!!!" })
+    if(Object.keys(data).length == 0) return res.status(400).send({ status : false, message : "Please enter valid keys for updation !!!" })
 
-    if (!(rating <= 5 && rating >= 1)) return res.status(400).send({ status: false, message: "please provide a valid rating" })
+    if (!(rating <= 5 && rating >= 1)) return res.status(400).send({ status: false, message: "Please provide a valid rating between 1-5 !!!" })
 
     if(!isValidObjectId(bookId)) return res.status(400).send({ status : false , message : "BookId is not a valid ObjectId !!!" })
     
-    let bookData = await bookModel.findById(bookId).lean()
-    console.log(bookData)
+    let bookData = await bookModel.findById(bookId).select({ ISBN : 0 , __v : 0 }).lean()
 
     if(!bookData) return res.status(404).send({ status : false , message : "This book is not present !!!" })
 
@@ -75,10 +74,12 @@ const updateReview = async function(req , res){
 
     let reviewData = await reviewModel.findById(reviewId)
 
-    if(reviewData.isDeleted === true) return res.status(400).send({ status : false , message : "This review is deleted !!!" })
+    if(!reviewData) return res.status(404).send({ status : false , message : "This review is not present !!!" })
+
+    if(reviewData.isDeleted === true) return res.status(400).send({ status : false , message : "This review is already deleted !!!" })
 
     if(review){ 
-        if(typeof review === "String" && review.trim().length == 0) return res.status(400).send({ status : false, message : "please enter valid review" })
+        if(typeof review === "String" && review.trim().length == 0) return res.status(400).send({ status : false, message : "Please enter valid review !!!" })
     }
 
     if(rating){
@@ -90,11 +91,10 @@ const updateReview = async function(req , res){
     }
 
     let updateReviewData = await reviewModel.findOneAndUpdate({ _id : reviewId , isDeleted : false } , data , { new : true })
-    console.log(updateReviewData)
 
-    if(!updateReviewData) return res.status(400).send({ status : true , message : "Review not deleted" })
+    if(!updateReviewData) return res.status(400).send({ status : true , message : "Review not deleted !!!" })
 
-    let newReviewData = await reviewModel.find({ bookId , isDeleted : false })
+    let newReviewData = await reviewModel.find({ bookId , isDeleted : false }).select({ isDeleted : 0 , createdAt : 0 , updatedAt : 0 , __v : 0 })
 
     if(newReviewData.length == 0) reviewData.push("No reviews available !!!")
 
@@ -118,23 +118,22 @@ const deleteReview = async function (req, res){
     if (!isValidObjectId(reviewId)) {return res.status(400).send({ status : false, message : "Invalid reviewId !!!" }) }
 
     let checkBook = await bookModel.findById(bookId).lean()
-    console.log(checkBook)
     if(!checkBook) return res.status(404).send({ status : false, message : "Book not found !!!" })
 
-    let checkReview = await reviewModel.findById(reviewId)
-    console.log(checkReview)
+    if (checkBook.isDeleted === true) return res.status(400).send({ status : false , message : "Book is already deleted !!!" })
 
+    let checkReview = await reviewModel.findById(reviewId)
     if(!checkReview) return res.status(404).send({ status : false, message : "Review not found !!!" })
 
-    if (checkBook.isDeleted === true || checkReview.isDeleted === true) return res.status(400).send({ status : false, message : "Can't delete review of a deleted book !!!" })
+    if (checkReview.isDeleted === true) return res.status(400).send({ status : false , message : "Review is already deleted !!!" })
 
     const deleteReviewDetails = await reviewModel.findOneAndUpdate( { _id : reviewId } , { isDeleted : true, deletedAt : new Date() } , { new : true })
 
-    if (!deleteReviewDetails) return res.status(400).send({ status : true , message : "Review not deleted" })
+    if (!deleteReviewDetails) return res.status(400).send({ status : true , message : "Review not deleted !!!" })
 
-    let deletedBook = await bookModel.findOneAndUpdate({ _id: bookId } , { $inc : { reviews: -1 } } , { new : true } ).lean()
+    let deletedBook = await bookModel.findOneAndUpdate({ _id : bookId } , { $inc : { reviews: -1 } } , { new : true } ).select({ ISBN : 0 , __v : 0 }).lean()
 
-    let reviewData = await reviewModel.find({ bookId , isDeleted : false })
+    let reviewData = await reviewModel.find({ bookId , isDeleted : false }).select({ isDeleted : 0 , createdAt : 0 , updatedAt : 0 , __v : 0 })
 
     if(reviewData.length == 0) reviewData.push("No reviews available !!!")
 

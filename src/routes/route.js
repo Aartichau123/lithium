@@ -9,20 +9,20 @@ router.post('/register', userController.createUser)
 
 router.post('/login', userController.userLogin)
 
-router.post('/books', authentication , bookController.createBook)
+router.post('/books', authentication , authorization , bookController.createBook)
 
 router.get('/books', authentication , bookController.getAllBooks)
 
 router.get('/books/:bookId', authentication , bookController.getBookById)
 
-router.put('/books/:bookId' , authentication , bookController.updatebooks)
+router.put('/books/:bookId' , authentication , authorization , bookController.updatebooks)
 
-router.delete('/books/:bookId', authentication , bookController.deleteBook)
+router.delete('/books/:bookId', authentication , authorization , bookController.deleteBook)
 
-router.post('/books/:bookId/review', authentication , reviewController.createReview)
+router.post('/books/:bookId/review', authentication , authorization , reviewController.createReview)
 
-router.put('/books/:bookId/review/:reviewId', authentication , reviewController.updateReview)
+router.put('/books/:bookId/review/:reviewId', authentication , authorization , reviewController.updateReview)
 
-router.delete('/books/:bookId/review/:reviewId', authentication , reviewController.deleteReview)
+router.delete('/books/:bookId/review/:reviewId', authentication , authorization , reviewController.deleteReview)
 
 module.exports = router
