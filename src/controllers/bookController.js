@@ -3,7 +3,7 @@ const moment = require('moment')
 const bookModel = require('../models/bookModel')
 const userModel = require('../models/userModel')
 const reviewModel = require('../models/reviewModel.js')
-const { isValidString } = require('../validations/validation')
+const { isValidString ,isIsbn} = require('../validations/validation')
 
 const createBook = async function(req , res){
 
@@ -27,6 +27,8 @@ const createBook = async function(req , res){
     let userIdCheck = await userModel.findById(userId)
     if(!userIdCheck) return res.status(404).send({ status : false , message : "UserId does not exist !!!" })
 
+
+    if (!isIsbn(ISBN)) return res.status(400).send({ status : false, message : "Please enter a valid ISBN  Its contain 10 or 13 digit.!!!"  })
     let ISBNCheck = await bookModel.findOne({ISBN})
     if(ISBNCheck) return res.status(400).send({ status : false , message : "ISBN already in use !!!" })
     data.releasedAt = moment(data.releasedAt).format('YYYY-MM-DD')
@@ -51,6 +53,7 @@ const getAllBooks = async function (req , res) {
 
     if(category){
         if(!isValidString(category)) return res.status(400).send({ status : false , message : "Category is required !!!" })
+        console.log(category)
     }
 
     if(userId){
@@ -60,12 +63,14 @@ const getAllBooks = async function (req , res) {
     }
 
     if(subcategory){
-        if(!isValidString(category)) return res.status(400).send({ status : false , message : "Category is required !!!" })
+        if(!isValidString(category)) return res.status(400).send({ status : false , message : "Sub Category is required !!!" })
     }
 
     filter.isDeleted = false
+    console.log(filter)
 
-    let bookDetails = await bookModel.find(filter).select({ title : 1 , excerpt : 1 , userId : 1 , category : 1 , reviews : 1 , releasedAt : 1 }).sort({ title : 1 })
+    let bookDetails = await bookModel.find(filter)//.select({ title : 1 , excerpt : 1 , userId : 1 , category : 1 , reviews : 1 , releasedAt : 1 }).sort({ title : 1 })
+    console.log(bookDetails)
 
     if (bookDetails.length == 0) return res.status(404).send({ status : false, message : "No books available." })
 
@@ -91,7 +96,6 @@ const getBookById = async function(req , res){
 
         let reviewData = await reviewModel.find({ bookId , isDeleted : false }).select({ isDeleted : 0 , createdAt : 0 , updatedAt : 0 , __v : 0 })
 
-        if(reviewData.length == 0) reviewData.push("No reviews available !!!")
 
         bookData.reviewsData = reviewData
 
@@ -134,7 +138,7 @@ const updatebooks = async function (req , res) {
 
     if(ISBN){
         if (typeof ISBN === "String") return res.status(400).send({ status : false, message : "ISBN should have string datatype !!!" })
-        if (!/^\d{3}-?\d{10}/.test(ISBN.trim())) return res.status(400).send({ status : false, message : "Please enter a valid ISBN !!!" })
+        if (!isIsbn(ISBN)) return res.status(400).send({ status : false, message : "Please enter a valid ISBN !!!" })
 
         let ISBNCheck = await bookModel.findOne({ ISBN : ISBN.trim() })
         if (ISBNCheck) return res.status(400).send({ status : false, message : "ISBN already exist !!!" })

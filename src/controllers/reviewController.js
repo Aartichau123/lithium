@@ -2,7 +2,7 @@ const { isValidObjectId } = require('mongoose')
 const bookModel = require('../models/bookModel')
 const userModel = require('../models/userModel')
 const reviewModel = require('../models/reviewModel.js')
-const { isValidString } = require('../validations/validation')
+const { isValid} = require('../validations/validation')
 const moment = require('moment')
 
 const createReview = async function (req, res) {
@@ -26,12 +26,13 @@ const createReview = async function (req, res) {
     
     if (!(rating <= 5 && rating >= 1)) return res.status(400).send({ status: false, message: "Please provide a valid rating between 1-5 !!!" })
 
-    //   if (!isValid(review)) return res.status(400).send({ status: false, message: "review is a required field" })
+      if (!isValid(review)) return res.status(400).send({ status: false, message: "review is a required field" })
 
-    //   if (!isValid(reviewedBy)) return res.status(400).send({ status: false, message: "review is a required field" })
+      if (!isValid(reviewedBy)) return res.status(400).send({ status: false, message: "review is a required field" })
 
     data.bookId = bookId
-    data.reviewedAt = moment(reviewedAt).format('YYYY-MM-DD')
+    data.reviewedAt = moment(reviewedAt).format('YYYY-MM-DD');
+    console.log(data)
 
     let reviewCreated = await reviewModel.create(data)
 
@@ -92,7 +93,7 @@ const updateReview = async function(req , res){
 
     let updateReviewData = await reviewModel.findOneAndUpdate({ _id : reviewId , isDeleted : false } , data , { new : true })
 
-    if(!updateReviewData) return res.status(400).send({ status : true , message : "Review not deleted !!!" })
+    if(!updateReviewData) return res.status(400).send({ status : true , message : "Review not updated!!!" })
 
     let newReviewData = await reviewModel.find({ bookId , isDeleted : false }).select({ isDeleted : 0 , createdAt : 0 , updatedAt : 0 , __v : 0 })
 
@@ -129,7 +130,7 @@ const deleteReview = async function (req, res){
 
     const deleteReviewDetails = await reviewModel.findOneAndUpdate( { _id : reviewId } , { isDeleted : true, deletedAt : new Date() } , { new : true })
 
-    if (!deleteReviewDetails) return res.status(400).send({ status : true , message : "Review not deleted !!!" })
+    if (!deleteReviewDetails) return res.status(400).send({ status : false , message : "Review not deleted !!!" })
 
     let deletedBook = await bookModel.findOneAndUpdate({ _id : bookId } , { $inc : { reviews: -1 } } , { new : true } ).select({ ISBN : 0 , __v : 0 }).lean()
 

@@ -19,10 +19,10 @@ router.put('/books/:bookId' , authentication , authorization , bookController.up
 
 router.delete('/books/:bookId', authentication , authorization , bookController.deleteBook)
 
-router.post('/books/:bookId/review', authentication , authorization , reviewController.createReview)
+router.post('/books/:bookId/review', authentication  , reviewController.createReview)
 
-router.put('/books/:bookId/review/:reviewId', authentication , authorization , reviewController.updateReview)
+router.put('/books/:bookId/review/:reviewId', authentication , reviewController.updateReview)
 
-router.delete('/books/:bookId/review/:reviewId', authentication , authorization , reviewController.deleteReview)
+router.delete('/books/:bookId/review/:reviewId', authentication , reviewController.deleteReview)
 
 module.exports = router
