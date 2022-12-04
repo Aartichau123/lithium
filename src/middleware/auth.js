@@ -30,10 +30,13 @@ const authorization = async function (req, res, next) {
     let userId = req.body.userId
     
     if(bookId){
-        const books = await bookModel.findById(bookId)
-        if (!books) return res.status(404).send({ status : false, message : "Book not found !!!" })
 
-        if(books.userId!=req.loggedInUser) return res.status(403).send({ status : false , message : "Not Authorized !!!" })
+        if(!isValidObjectId(bookId)) return res.status(400).send({ status : false , message : "BookId id not valid ObjectId !!!" })
+
+        const books = await bookModel.findById(bookId)
+        if (!books) return res.status(404).send({ status : false , message : "Book not found !!!" })
+
+        if(books.userId != req.loggedInUser) return res.status(403).send({ status : false , message : "Not Authorized !!!" })
     }
 
     if(userId){
@@ -43,13 +46,13 @@ const authorization = async function (req, res, next) {
         let user = await userModel.findById(userId)
         if (!user)  return res.status(404).send({ status : false , message : "User not found !!!" })
 
-        if(userId!=req.loggedInUser) return res.status(403).send({ status : false , message : "Not Authorized !!!" })    
+        if(userId != req.loggedInUser) return res.status(403).send({ status : false , message : "Not Authorized !!!" })    
     }
 
     next()
 
     } catch (err) {
-        return res.status(500).send({ status : false, error : err.message })
+        return res.status(500).send({ status : false , error : err.message })
     }
 }
 
